@@ -1,0 +1,373 @@
+%% beamerinnerthemeSJTUBeamer.sty
+%% Copyright 2021 Log Creative
+%% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+% https://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status ‘maintained’.
+%
+% The Current Maintainer of this work is Log Creative.
+%
+
+\RequirePackage{tikz}
+\RequirePackage{pgfplots}
+\RequirePackage{array}
+\RequirePackage{colortbl}
+\RequirePackage{tabu}
+\RequirePackage{booktabs}
+\RequirePackage{pgfplotstable}
+\RequirePackage{tcolorbox}
+\RequirePackage{multicol}
+
+% Title and part pages.
+
+\DeclareOptionBeamer{lang}{\def\beamer@SJTUBeamer@lang{#1}}
+
+\def\beamer@SJTUBeamer@langcn{cn}%
+\def\beamer@SJTUBeamer@langen{en}%
+
+\ExecuteOptionsBeamer{lang=cn} % cn will be default if nothing is given
+
+\DeclareOptionBeamer{pattern}{\def\beamer@SJTUBeamer@pattern{#1}}
+
+\def\beamer@SJTUBeamer@patternnone{none}%
+\def\beamer@SJTUBeamer@patterntitle{title}%
+\def\beamer@SJTUBeamer@patternall{all}%
+
+\ProcessOptionsBeamer
+
+\ifx\beamer@SJTUBeamer@lang\beamer@SJTUBeamer@langcn
+  \pgfdeclareimage[height=1cm]{titlelogo}{vi/cnlogo.pdf}
+\else
+  \pgfdeclareimage[height=1cm]{titlelogo}{vi/enlogo.pdf}
+\fi
+
+\usetikzlibrary{patterns.meta}
+\usetikzlibrary{fadings}
+\tikzdeclarepattern{
+	name=stamp,
+	parameters={
+		\pgfkeysvalueof{/pgf/pattern keys/size},
+		\pgfkeysvalueof{/pgf/pattern keys/xshift},
+		\pgfkeysvalueof{/pgf/pattern keys/yshift},
+	},
+	defaults={
+		size/.initial = 5pt,
+		xshift/.initial = 0pt,
+		yshift/.initial = 0pt,
+	},
+	bottom left={(
+		-0.5*\pgfkeysvalueof{/pgf/pattern keys/size}+\pgfkeysvalueof{/pgf/pattern keys/xshift},
+		-0.4*\pgfkeysvalueof{/pgf/pattern keys/size}+\pgfkeysvalueof{/pgf/pattern keys/yshift}
+	)},
+	top right={(
+		0.5*\pgfkeysvalueof{/pgf/pattern keys/size}+\pgfkeysvalueof{/pgf/pattern keys/xshift},
+		0.4*\pgfkeysvalueof{/pgf/pattern keys/size}+\pgfkeysvalueof{/pgf/pattern keys/yshift}
+	)},
+	tile size={(
+		\pgfkeysvalueof{/pgf/pattern keys/size},
+		0.8*\pgfkeysvalueof{/pgf/pattern keys/size}
+	)},
+	code={
+		\def\s{\pgfkeysvalueof{/pgf/pattern keys/size}}%
+		\tikzset{x=0.5*\s,y=0.2*\s}
+		\fill[xshift=\pgfkeysvalueof{/pgf/pattern keys/xshift},
+			yshift=\pgfkeysvalueof{/pgf/pattern keys/yshift}] 
+			(-0.25*\s,0) 
+			-- (-0.17*\s,0.06*\s) 
+			-- (-0.17*\s,0.1*\s) 
+			-- (0.17*\s,0.1*\s) 
+			-- (0.17*\s,0.06*\s)
+			-- (0.25*\s,0) 
+			-- (0.17*\s,-0.06*\s) 
+			-- (0.17*\s,-0.1*\s) 
+			-- (-0.17*\s,-0.1*\s) 
+			-- (-0.17*\s,-0.06*\s) -- cycle;
+	}
+}
+\tikzfading[
+  name=center fade,
+  inner color=transparent!0,
+  outer color=transparent!15
+]
+\tikzfading[
+  name=fade right,
+  left color=transparent!0,
+  right color=transparent!100
+]
+\providecommand{\stamparray}[3]{
+	% #1: pattern size
+	% #2: starting point
+	% #3: ending point
+		\fill [pattern={stamp[size=#1]},pattern color=cprimary!50] #2 rectangle #3;
+		\def\s{#1}%
+		\pgfmathparse{0.5*\s}\let\xs=\pgfmathresult%
+		\pgfmathparse{-0.4*\s}\let\ys=\pgfmathresult%
+		\fill [pattern={stamp[size=#1,xshift=\xs, yshift=\ys]},pattern color=cprimary!50] #2 rectangle #3;
+}
+\titlegraphic{\pgfuseimage{titlelogo}}
+\defbeamertemplate*{title page}{SJTUBeamer}[1][]
+{
+  \vbox{}
+  \vfill
+  \ifx\beamer@SJTUBeamer@pattern\beamer@SJTUBeamer@patternnone%
+  \else
+  \begin{tikzpicture}[overlay]
+    \stamparray{20pt}{(-0.5*\the\paperwidth,-0.9*\the\paperheight)}{(0.5*\the\paperwidth, 0.2*\the\paperheight)}
+    \fill [cprimary,path fading=fade right] (-0.5*\the\paperwidth,-0.9*\the\paperheight) rectangle (0.5*\the\paperwidth, 0.2*\the\paperheight);
+    \fill [cprimary,path fading=center fade,xshift=-10pt,yshift=-20pt] (0,0) circle [radius=\the\paperwidth];
+  \end{tikzpicture}
+  \fi
+  \begingroup
+    \centering
+    \usebeamercolor{title}
+    \begin{beamercolorbox}[sep=8pt]{logo}
+        \inserttitlegraphic
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,#1]{title}
+      \usebeamerfont{title}\inserttitle\par%
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.25em%
+        {\usebeamerfont{subtitle}\usebeamercolor{subtitle}\insertsubtitle\par}%
+      \fi%     
+    \end{beamercolorbox}%
+    \vskip1em\par
+    \begin{beamercolorbox}[sep=8pt,#1]{author}
+      \usebeamerfont{author}\insertauthor
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,#1]{institute}
+      \usebeamerfont{institute}\insertinstitute
+    \end{beamercolorbox}
+    \begin{beamercolorbox}[sep=8pt,#1]{date}
+      \usebeamerfont{date}\insertdate
+    \end{beamercolorbox}\vskip0.5em
+  \endgroup
+  \vfill
+}
+\def\maketitle{
+    \setbeamercolor{background canvas}{bg=cprimary}%
+    \setbeamercolor{structure}{fg=white}%
+    \setbeamercolor{titlelike}{fg=white,bg=}%
+    \ifbeamer@inframe%
+    \titlepage%
+    \else%
+    \frame{\titlepage}%
+    \fi%
+    \setbeamercolor{titlelike}{fg=white,bg=cprimary}%
+    \setbeamercolor{background canvas}{bg=white}%
+    \setbeamercolor{structure}{fg=cprimary}%
+}
+
+% Itemize environments.
+
+\setbeamertemplate{items}[circle]
+\setbeamertemplate{sections/subsections in toc}[circle]
+
+% Enumerate environments.
+
+% Description environments.
+
+% Block environments.
+
+\tcbuselibrary{skins}
+\tcbuselibrary{listingsutf8}
+\newtcblisting{codeblock}[2]{listing only, 
+listing engine=listings,
+listing options={
+  language=#1,%
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{cprimary},%
+  stringstyle=\color{csecondary},%
+  commentstyle=\color{ctertiary!80!gray},%
+  numbers=left,
+  numberstyle=\color{cprimary!80}\ttfamily\scriptsize,
+  numbersep=5pt,
+  columns=flexible,
+  extendedchars=false,
+  showstringspaces=false,
+  showspaces=false,
+  breaklines
+},
+enhanced,
+sharp corners,
+top=0mm,
+bottom=0mm,
+title=#2,
+colback=cprimary!5,
+colframe=cprimary!80,
+overlay={
+    \begin{tcbclipinterior}\fill[cprimary!20]%
+        (frame.south west) rectangle ([xshift=5mm]frame.north west);
+    \end{tcbclipinterior}
+}
+}
+
+% Theorem and proof environments.
+
+% Figures and tables.
+
+\usetikzlibrary{decorations.pathmorphing}
+\pgfdeclaredecoration{stampline}{initial}
+{
+  \state{initial}[
+    width=\pgfdecorationsegmentlength,
+    auto corner on length=\pgfdecorationsegmentlength]
+  {
+    \def\l{\pgfdecorationsegmentlength}%
+    \pgfpathlineto{\pgfpoint{0.25*\l}{0pt}}
+    \pgfpathlineto{\pgfpoint{0.33*\l}{0.06*\l}}
+    \pgfpathlineto{\pgfpoint{0.33*\l}{0.1*\l}}
+    \pgfpathlineto{\pgfpoint{0.67*\l}{0.1*\l}}
+    \pgfpathlineto{\pgfpoint{0.67*\l}{0.06*\l}}
+    \pgfpathlineto{\pgfpoint{0.75*\l}{0pt}}
+    \pgfpathlineto{\pgfpoint{\l}{0pt}}
+  }
+  \state{final}
+  {
+    \pgfpathlineto{\pgfpointdecoratedpathlast}
+  }
+}
+\newtcolorbox{stampbox}{%
+  capture=hbox,
+  enhanced,
+  frame empty,
+  interior empty,
+  sharp corners,
+  top=2pt,bottom=2pt,left=2pt,right=2pt,
+  borderline={4pt}{0pt}{
+    cprimary,
+    line width=0.5pt,
+    decoration={
+      stampline,
+      segment length=8pt,
+      path has corners=true,
+    },
+    decorate
+  }
+}
+
+\pgfplotsset{
+  compat=newest,
+  every axis/.style={
+    font=\small\sffamily\sansmath,
+    cycle multi list={
+      mark options={thick}\nextlist
+      mark list\nextlist
+      cprimary,csecondary,ctertiary\nextlist
+    },
+    width=\ifdef{\mult@@cols}{
+      \axisdefaultwidth
+    }{
+      \columnwidth
+    },
+    axis line style={
+      cprimary,
+      thin
+    },
+    every tick label/.style={
+      cprimary,
+      font=\small,
+			/pgf/number format/assume math mode=true
+    },
+    grid style={cprimary!10},
+    tick style={cprimary!50},
+    minor tick style={cprimary!30},
+    xlabel style={cprimary},
+    ylabel style={cprimary},
+    zlabel style={cprimary},
+    legend style={
+      draw={cprimary},
+      thin,
+      nodes={cprimary}
+    },
+    thick,
+  },
+}
+
+\def\zapcolorreset{\let\reset@color\relax\ignorespaces}
+\def\colorrows#1{\noalign{\aftergroup\zapcolorreset#1}\ignorespaces}
+\pgfplotstableset{
+  col sep=comma,
+  every table/.style={
+    font={\small\sffamily\sansmath},
+  },
+  every head row/.style={
+    before row={
+      \arrayrulecolor{cprimary}
+      \toprule
+      \colorrows{\color{cprimary}}
+    },
+    after row={
+      \midrule
+      \colorrows{\color{black}}
+    },
+  },
+  every last row/.style={
+    after row=\bottomrule
+  },
+}
+
+% Footnotes.
+
+\defbeamertemplate*{footnote}{SJTUBeamer}
+{
+  \footnotesize
+  \parindent 0.5em\noindent%
+  \raggedright
+  \hbox to 1.5em{\hfil\insertfootnotemark}\insertfootnotetext\par%
+}
+
+% Bibliography entries.
+
+% Bottom Page
+
+\def\bottompage{
+  \vbox{}
+  \vfill
+  \begin{tikzpicture}[overlay]
+    \def\w{\the\paperwidth}%
+    \def\h{\the\paperheight}%
+    \begin{scope}[fill=cprimary!50!black,fill opacity=0.15]
+    \clip (0.7*\w,1.05*\h) circle (0.95*\h);
+    \fill (0.14*\w,-0.95*\h) circle (1.67*\h);
+    \end{scope}
+    \begin{scope}[fill=csecondary!50!cprimary!70!white,fill opacity=0.15]
+    \clip (1.14*\w,-0.67*\h) circle (1.17*\h);
+    \fill 
+      (0.14*\w,-0.95*\h) circle (1.67*\h)
+      (0.7*\w,1.05*\h) circle (0.95*\h);
+    \end{scope}
+  \end{tikzpicture}
+  \begingroup
+  \vskip1em
+  \begin{beamercolorbox}[sep=8pt]{title}
+    \usebeamerfont{title}\noindent
+    \ifx\beamer@SJTUBeamer@lang\beamer@SJTUBeamer@langcn
+      谢谢
+    \else
+      Thank You
+    \fi
+    \vskip1em%
+    \usebeamerfont{subtitle}\usebeamercolor{subtitle!50!cprimary}\insertauthor~$\cdot$~\inserttitle
+  \end{beamercolorbox}%
+  \endgroup
+}
+
+\def\makebottom{
+  \setbeamercolor{background canvas}{bg=cprimary}%
+  \setbeamercolor{structure}{fg=white}%
+  \setbeamercolor{titlelike}{fg=white,bg=}%
+  \ifbeamer@inframe%i
+  \bottompage%
+  \else%
+  \frame{\bottompage}%
+  \fi%
+  \setbeamercolor{titlelike}{fg=white,bg=cprimary}%
+  \setbeamercolor{background canvas}{bg=white}%
+  \setbeamercolor{structure}{fg=cprimary}%
+}
